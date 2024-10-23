@@ -151,6 +151,6 @@ This is how the grid looks now:
 
 </pre>
 
-*Go to the samples.txt file for sample questions* <br>
+*Go to the samples.md file for sample questions* <br>
 **✨Happy Playing✨**
 **
