@@ -2,12 +2,12 @@
 using namespace std;
 
 void change(char* grid,int* length,char* orientation,int* left,int* top);
-void moveGrid(char* grid, char element,char move);
+void moveGrid(char* grid, char element,char move, char* kori, int* kpos, int* kwin);
 void moveInput(char*  element, char* move,char* grid);
-void movex(char* grid, char element,char move,int x1,int y1, int x2, int y2);
-void movey(char* grid, char element,char move,int x1,int y1, int x2, int y2);
+void movex(char* grid, char element,char move,int x1,int y1, int x2, int y2, char* kori, int* kpos, int* kwin);
+void movey(char* grid, char element,char move,int x1,int y1, int x2, int y2, char* kori, int* kpos, int* kwin);
 char newch();
-void placeKey(char* grid);
+void placeKey(char* grid, int* kpos, int*kwin, char* kori);
 void show(char* a);
 void takeInput(int* length, char* orientation, int* left, int* top);
 
@@ -47,8 +47,11 @@ int main()
             cout<<"Invalid response. Try again\n";
         }
     }
+
+    int kposition, kwin;
+    char kori; //key orientation
     
-    placeKey(&grid[0]);
+    placeKey(&grid[0], &kposition, &kwin, &kori);
     cout<<"\n ~ FINAL GRID ~\n";
     show(&grid[0]);
 
@@ -58,10 +61,15 @@ int main()
     cout<<"Start playing. Give your moves in the format: Element direction(R/L/U/D)\n For example: A D\n(This will take block containing element A down if possible)\n";
     while(!win)
     {
+        cout<<"\nMove key by "<<kposition-kwin<<" boxes.";
         moveInput(&element, &move, &grid[0]);
-        moveGrid(&grid[0], element, move);
-        //show(&grid[0]);
-        //checkwin
+        moveGrid(&grid[0], element, move, &kori, &kposition, &kwin);
+        if(kposition == kwin)
+        {
+            cout<<"YOU WON!";
+            cout<<"\n \\o       o/   o__ __o        o         o                    o              o            o__ __o            o          o      \n  v\\     /v   /v     v\\      <|>       <|>                  <|>            <|>          /v     v\\          <|\\        <|>     \n   <\\   />   />       <\\     / \\       / \\                  / \\            / \\         />       <\\         / \\o      / \\     \n     \\o/   o/           \\o   \\o/       \\o/                  \\o/            \\o/       o/           \\o       \\o/ v\\     \\o/     \n      |   <|             |>   |         |                    |              |       <|             |>       |   <\\     |      \n     / \\   \\           //    < >       < >                  < >            < >       \\           //       / \\    \\o  / \\     \n     \\o/     \\         /      \\         /                    \\o    o/\\o    o/          \\         /         \\o/     v\\ \\o/     \n      |       o       o        o       o                      v\\  /v  v\\  /v            o       o           |       <\\ |      \n     / \\      <\\__ __/>        <\\__ __/>                       <\\/>    <\\/>             <\\__ __/>          / \\        < \\     \n                                                                                                                              \n                                                                                                                              \n                                                                                                                              ";
+            break;
+        }
     }    
 
     return 0;
@@ -181,7 +189,7 @@ void takeInput(int* length, char* orientation, int* left, int* top)
     }
 }
 
-void placeKey(char* grid)
+void placeKey(char* grid, int* kpos,int *kwin, char* kori)
 {
     cout<<"Place the key in position (x,y).";
     cout<<"Put your input seperated by spaces in the following order: orientation  x y\n";
@@ -251,27 +259,54 @@ void placeKey(char* grid)
             *(grid+top*6 + left+i) = newc;
         }
     }
+    *kori = orientation;
+    *kpos = top*6+left;
 
+    if(orientation == 'v' || orientation == 'V')
+    {
+        int down;
+        cout<<"\nHow many boxes does the key need to go down? :";
+        cin>>down;
+        if(top+down > 5)
+        {
+            cout<<"\nWarning: Keep it within the grid. Try again: ";
+            cin>>down;
+        }
+        *kwin = (top+down)*6 + left;
+    }
+    else
+    {
+        int right;
+        cout<<"\nHow many boxes to the right does the key need to go ? :";
+        cin>>right;
+        if(left+right > 5)
+        {
+            cout<<"\nWarning: Keep it within the grid. Try again: ";
+            cin>>right;
+        }
+        *kwin = top*6 + left + right;
+    }
+    cout<<"\n\nPosition of key: "<<*kpos<<" Position of win: "<<*kwin<<"\n";
 }
 
-void moveGrid(char* grid , char element,char move)
+void moveGrid(char* grid , char element,char move,char* kori,int* kpos,int* kwin)
 {
     int positionx1 = -1, positiony1 = -1;
     int positionx2 = -1, positiony2 = -1;
 
+    cout<<"\nOrientation: "<<*kori<<"\n";
+   
     for(int row = 0; row < 6; row++)
     {
         for(int column = 0; column < 6; column++)
         {
             if(*(grid+row*6+column) == element && positionx1==-1)
             {
-                cout<<"First Position of element is "<<row+1<<" and "<<column+1;
                 positionx1 = column;
                 positiony1 = row;
             }
             if(*(grid+row*6+column) == element)
             {
-                cout<<"Last Position of element is "<<row+1<<" and "<<column+1;
                 positionx2 = column;
                 positiony2 = row;
             }
@@ -280,19 +315,20 @@ void moveGrid(char* grid , char element,char move)
 
     if(move == 'L' || move =='R')
     {
-        movex(&grid[0], element, move, positionx1, positiony1, positionx2, positiony2);
+        movex(&grid[0], element, move, positionx1, positiony1, positionx2, positiony2, kori, kpos, kwin);
         cout<<"CURRENT GRID: \n";
         show(&grid[0]);
     }
     if(move == 'U' || move =='D')
     {
-        movey(&grid[0], element, move, positionx1, positiony1, positionx2, positiony2);
+        movey(&grid[0], element, move, positionx1, positiony1, positionx2, positiony2, kori, kpos, kwin);
         cout<<"CURRENT GRID: \n";
         show(&grid[0]);
     }
 }
 
-void movex(char* grid, char element,char move,int x1,int y1, int x2, int y2)
+
+void movex(char* grid, char element,char move,int x1,int y1, int x2, int y2, char* kori, int* kpos, int* kwin)
 {
     //check if horizontal
     if(y1 == y2)
@@ -308,6 +344,10 @@ void movex(char* grid, char element,char move,int x1,int y1, int x2, int y2)
             {
                 *(grid+y1*6+x1) = ' ';
                 *(grid+y2*6+x2+1) = element;
+                if(element == '$')
+                {
+                    *kpos = *kpos + 1;
+                }
             }
         }
         else
@@ -320,6 +360,10 @@ void movex(char* grid, char element,char move,int x1,int y1, int x2, int y2)
             {
                 *(grid+y1*6+x2) = ' ';
                 *(grid+y2*6+x1-1) = element;
+                if(element == '$')
+                {
+                    *kpos = *kpos -1;
+                }
             }
         }
     }
@@ -330,7 +374,7 @@ void movex(char* grid, char element,char move,int x1,int y1, int x2, int y2)
 }
 
 
-void movey(char* grid, char element,char move,int x1,int y1, int x2, int y2)
+void movey(char* grid, char element,char move,int x1,int y1, int x2, int y2,char* kori, int* kpos, int* kwin )
 {
     //check if vertical
     if(x1 == x2)
@@ -346,6 +390,10 @@ void movey(char* grid, char element,char move,int x1,int y1, int x2, int y2)
             {
                 *(grid+y1*6+x1-6) = element;
                 *(grid+y2*6+x2) = ' ';
+                if(element == '$')
+                {
+                    *kpos = *kpos - 6;
+                }
             }
         }
         else
@@ -358,6 +406,10 @@ void movey(char* grid, char element,char move,int x1,int y1, int x2, int y2)
             {
                 *(grid+y1*6+x1) = ' ';
                 *(grid+y2*6+x2+6) = element;
+                if(element == '$')
+                {
+                    *kpos = *kpos+6;
+                }
             }
         }
     }
@@ -372,4 +424,3 @@ void moveInput(char*  element, char* move,char* grid)
     cout<<"\nMove: ";
     cin>>*element>>*move;
 }
-
