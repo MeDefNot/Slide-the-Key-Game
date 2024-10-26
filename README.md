@@ -93,7 +93,14 @@ Input:
    h 2 2
 </pre>
 This will place the key horizontally at a distance of two blocks from the left and two blocks from the top. Note: a key is always 2 blocks in length
-
+<br>
+Also input how many boxes the key needs to go for you to win the game.
+<pre>
+          How many boxes to the right does the key need to go ? :
+</pre>
+Input
+<pre>2</pre>
+**AND~**
 <pre>
    ~ FINAL GRID ~
           ___ ___ ___ ___ ___ ___
@@ -119,7 +126,6 @@ This will place the key horizontally at a distance of two blocks from the left a
 * You can move vertical elements only vertically
 * Elements cannot overlap
 * Elements cannot go outside grid
-* You win if you can successfully slide the key across. (Didn't code the win message yet. But give yourself a pat if you can 🙃)
 <pre>
   Start playing. Give your moves in the format: Element direction(R/L/U/D)
  For example: A D
@@ -150,7 +156,10 @@ This is how the grid looks now:
              | K | K | L | L |   |
 
 </pre>
-
+* You win if you can successfully slide the key across to the desired position. (Give yourself a pat if you can 🙃)
+<pre>
+*Actually go and win to see the Word Art👀* 
+</pre>
 *Go to the samples.md file for sample questions* <br>
 **✨Happy Playing✨**
 **
